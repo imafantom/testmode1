@@ -1,43 +1,67 @@
-from streamlit_lottie import st_lottie
-import requests
+import streamlit as st
+import random
 
-def load_lottie_url(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
-        return None
-    return r.json()
+# ... (Imports, data, session_state, custom CSS, etc.)
 
-# Somewhere near the top of your code
-css_animations = """
-<style>
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-.fade-in {
-  animation: fadeIn 0.8s ease forwards;
-}
-</style>
-"""
-st.markdown(css_animations, unsafe_allow_html=True)
+def set_screen(screen_name: str):
+    """Helper function to update st.session_state.screen and rerun."""
+    st.session_state.screen = screen_name
 
-# Load a success Lottie animation once
-success_lottie_url = "https://assets2.lottiefiles.com/packages/lf20_3rwasyjy.json"
-success_lottie = load_lottie_url(success_lottie_url)
+def show_transition():
+    """A short 'transition screen' with a fade-in or fade-out effect."""
+    # Example fade-in CSS
+    st.markdown("""
+    <style>
+    @keyframes fadeIn {
+      from {opacity: 0;}
+      to {opacity: 1;}
+    }
+    .transition-container {
+      animation: fadeIn 1.2s ease forwards;
+      text-align: center;
+      margin-top: 80px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="transition-container">
+      <h2 style="color: #ff5722;">Loading the Next Screen...</h2>
+      <p>Please wait or press 'Continue' to proceed.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if st.button("Continue"):
+        # Example: Switch to our main explanation/questions
+        set_screen("explanation_and_questions")
 
 def show_explanation_and_questions():
-    # ... existing logic
-    if answered_count == total_questions:
-        st.success("All done!")
-        # Lottie success animation
-        st_lottie(success_lottie, height=250)
+    """Your existing function for the main content."""
+    # ... existing logic for explanation & questions ...
+    # For demonstration, let's say user finishes all questions:
+    all_done = True  # Replace with your real condition
+    if all_done:
+        # Instead of finishing right away, let's transition
+        set_screen("transition")
         return
 
-    # For each question:
-    for i, case in enumerate(usage_cases):
-        # Use fade-in container
-        st.markdown("<div class='fade-in'>", unsafe_allow_html=True)
-        st.write(f"**{case['title']}**")
-        st.write(case['question'])
-        # ... text_input, etc.
-        st.markdown("</div>", unsafe_allow_html=True)
+    st.write("... show questions ...")
+
+def main():
+    if "screen" not in st.session_state:
+        # Start from "welcome" or "explanation_and_questions" as you prefer
+        st.session_state.screen = "welcome"
+
+    # Basic screen routing
+    if st.session_state.screen == "welcome":
+        show_welcome()  # Your existing welcome function
+    elif st.session_state.screen == "transition":
+        show_transition()
+    elif st.session_state.screen == "explanation_and_questions":
+        show_explanation_and_questions()
+    else:
+        # Fallback
+        show_welcome()
+
+if __name__ == "__main__":
+    main()
